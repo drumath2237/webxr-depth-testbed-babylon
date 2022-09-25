@@ -20,4 +20,6 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   </div>
 `
 
+const a =1;
+
 setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)

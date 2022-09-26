@@ -7,7 +7,7 @@ export default class App {
     this.babylonScene = new BabylonScene(canvas);
   }
 
-  public readonly Run = (): void => {
-    this.babylonScene.InitScene();
+  public readonly RunAsync = async (): Promise<void> => {
+    await this.babylonScene.InitSceneAsync();
   };
 }

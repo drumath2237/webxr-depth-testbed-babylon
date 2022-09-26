@@ -1,7 +1,7 @@
 import App from './App';
 import './style.scss';
 
-const main = (): void => {
+const main = async (): Promise<void> => {
   const renderCanvas = document.getElementById(
     'renderCanvas'
   ) as HTMLCanvasElement;
@@ -17,7 +17,7 @@ const main = (): void => {
   });
 
   const app = new App(renderCanvas);
-  app.Run();
+  await app.RunAsync();
 };
 
-main();
+await main();

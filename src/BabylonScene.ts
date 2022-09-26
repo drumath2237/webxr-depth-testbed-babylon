@@ -9,13 +9,18 @@ export default class BabylonScene {
     this.scene = new Scene(this.engine);
   }
 
-  public readonly InitScene = (): void => {
+  public readonly InitSceneAsync = async (): Promise<void> => {
     this.scene.createDefaultCamera(true, true, true);
-    this.scene.createDefaultEnvironment();
     this.scene.createDefaultLight(true);
 
     const cube = MeshBuilder.CreateBox('box', { size: 0.1 });
-    cube.position = new Vector3(0, 0.05, 0);
+    cube.position = new Vector3(0, 1.2, 0);
+
+    await this.scene.createDefaultXRExperienceAsync({
+      uiOptions: {
+        sessionMode: 'immersive-ar',
+      },
+    });
 
     window.addEventListener('resize', () => {
       this.engine.resize();

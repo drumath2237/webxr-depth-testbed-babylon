@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@babylonjs/core@^5.25.0":
-  version "5.25.0"
-  resolved "https://registry.yarnpkg.com/@babylonjs/core/-/core-5.25.0.tgz#aece076add1ef85c28cf449dfca6caa80743c5c9"
-  integrity sha512-pjUCrT5OPuJ0UU3bPtzovkRK+Xxl9bd1pIPG7aulqsC2Ci/hxiDNL2SwQnX9J/lcV5x6LTDyMUJ0IXSW8W+2sw==
+"@babylonjs/core@^5.27.0":
+  version "5.27.0"
+  resolved "https://registry.yarnpkg.com/@babylonjs/core/-/core-5.27.0.tgz#65792f299a8f8b6c53510f5793521e087012c5e8"
+  integrity sha512-read/erSx1O0ge22tH7AOQkajqG/poZ+F54zpLwkjmw3KzuOO30ehz6R21vL3dPu21SP5TqY58oPyPwBRjxS1A==
 
 "@esbuild/android-arm@0.15.9":
   version "0.15.9"

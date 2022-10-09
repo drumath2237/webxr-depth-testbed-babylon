@@ -19,15 +19,18 @@ export default class BabylonScene {
     const xr = await this.scene.createDefaultXRExperienceAsync({
       uiOptions: {
         sessionMode: 'immersive-ar',
+        requiredFeatures: ['depth-sensing'],
+        depthSensing: {
+          usagePreference: ['cpu-optimized'],
+          dataFormatPreference: ['luminance-alpha'],
+        },
         referenceSpaceType: 'unbounded',
-      },
+      } as any,
     });
 
-    xr.baseExperience.sessionManager.onXRFrameObservable.add(
-      (eventData, eventState) => {
-        console.log(eventData.session.depthUsage);
-      }
-    );
+    xr.baseExperience.sessionManager.onXRFrameObservable.add((frame) => {
+      console.log(frame.session);
+    });
 
     window.addEventListener('resize', () => {
       this.engine.resize();

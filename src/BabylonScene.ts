@@ -16,11 +16,18 @@ export default class BabylonScene {
     const cube = MeshBuilder.CreateBox('box', { size: 0.1 });
     cube.position = new Vector3(0, 1.2, 0);
 
-    await this.scene.createDefaultXRExperienceAsync({
+    const xr = await this.scene.createDefaultXRExperienceAsync({
       uiOptions: {
         sessionMode: 'immersive-ar',
+        referenceSpaceType: 'unbounded',
       },
     });
+
+    xr.baseExperience.sessionManager.onXRFrameObservable.add(
+      (eventData, eventState) => {
+        console.log(eventData.session.depthUsage);
+      }
+    );
 
     window.addEventListener('resize', () => {
       this.engine.resize();

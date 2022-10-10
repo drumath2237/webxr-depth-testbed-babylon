@@ -36,21 +36,24 @@ export default class BabylonScene {
     advancedTexture.addControl(enterExitButton);
 
     const xrHelper = await WebXRExperienceHelper.CreateAsync(this.scene);
+
     enterExitButton.onPointerDownObservable.add(() => {
-      setTimeout(() => {
-        const handler = async (): Promise<void> => {
-          await xrHelper.enterXRAsync('immersive-ar', 'unbounded', undefined, {
-            requiredFeatures: ['depth-sensing'],
-            depthSensing: {
-              usagePreference: ['cpu-optimized'],
-              dataFormatPreference: ['luminance-alpha'],
-            },
-          } as any);
-        };
-        handler().catch(null);
-      }, 100);
+      const handler = async (): Promise<void> => {
+        // user activationのために待機
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        await xrHelper.enterXRAsync('immersive-ar', 'unbounded', undefined, {
+          requiredFeatures: ['depth-sensing'],
+          depthSensing: {
+            usagePreference: ['cpu-optimized'],
+            dataFormatPreference: ['luminance-alpha'],
+          },
+        } as any);
+      };
+      handler().catch(null);
+
       enterExitButton.isVisible = false;
     });
+
     xrHelper.sessionManager.onXRSessionEnded.add(() => {
       enterExitButton.isVisible = true;
     });

@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@babylonjs/core": "^5.27.0",
+    "@babylonjs/gui": "^5.27.0",
     "sass": "^1.55.0"
   }
 }

@@ -1,4 +1,11 @@
-import { Engine, MeshBuilder, Scene, Vector3 } from '@babylonjs/core';
+import {
+  Engine,
+  MeshBuilder,
+  Scene,
+  Vector3,
+  WebXRExperienceHelper,
+} from '@babylonjs/core';
+import { AdvancedDynamicTexture, Button } from '@babylonjs/gui';
 
 export default class BabylonScene {
   private readonly engine: Engine;
@@ -16,20 +23,36 @@ export default class BabylonScene {
     const cube = MeshBuilder.CreateBox('box', { size: 0.1 });
     cube.position = new Vector3(0, 1.2, 0);
 
-    const xr = await this.scene.createDefaultXRExperienceAsync({
-      uiOptions: {
-        sessionMode: 'immersive-ar',
-        requiredFeatures: ['depth-sensing'],
-        depthSensing: {
-          usagePreference: ['cpu-optimized'],
-          dataFormatPreference: ['luminance-alpha'],
-        },
-        referenceSpaceType: 'unbounded',
-      } as any,
-    });
+    // setup gui@
+    const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI('UI');
+    const enterExitButton = Button.CreateSimpleButton(
+      'enterButton',
+      'Enter XR'
+    );
+    enterExitButton.width = 0.3;
+    enterExitButton.height = 0.05;
+    enterExitButton.background = 'green';
+    enterExitButton.color = 'white';
+    advancedTexture.addControl(enterExitButton);
 
-    xr.baseExperience.sessionManager.onXRFrameObservable.add((frame) => {
-      console.log(frame.session);
+    const xrHelper = await WebXRExperienceHelper.CreateAsync(this.scene);
+    enterExitButton.onPointerDownObservable.add(() => {
+      setTimeout(() => {
+        const handler = async (): Promise<void> => {
+          await xrHelper.enterXRAsync('immersive-ar', 'unbounded', undefined, {
+            requiredFeatures: ['depth-sensing'],
+            depthSensing: {
+              usagePreference: ['cpu-optimized'],
+              dataFormatPreference: ['luminance-alpha'],
+            },
+          } as any);
+        };
+        handler().catch(null);
+      }, 100);
+      enterExitButton.isVisible = false;
+    });
+    xrHelper.sessionManager.onXRSessionEnded.add(() => {
+      enterExitButton.isVisible = true;
     });
 
     window.addEventListener('resize', () => {

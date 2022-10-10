@@ -11,6 +11,8 @@ export default class BabylonScene {
   private readonly engine: Engine;
   private readonly scene: Scene;
 
+  private refSpace?: XRReferenceSpace;
+
   public constructor(canvas: HTMLCanvasElement) {
     this.engine = new Engine(canvas, true);
     this.scene = new Scene(this.engine);
@@ -48,6 +50,7 @@ export default class BabylonScene {
             dataFormatPreference: ['luminance-alpha'],
           },
         } as any);
+        this.refSpace = xrHelper.sessionManager.referenceSpace;
       };
       handler().catch(null);
 
@@ -58,10 +61,30 @@ export default class BabylonScene {
       enterExitButton.isVisible = true;
     });
 
+    xrHelper.sessionManager.onXRFrameObservable.add(this.OnFrame);
+
     window.addEventListener('resize', () => {
       this.engine.resize();
     });
 
     this.engine.runRenderLoop(() => this.scene.render());
+  };
+
+  private readonly OnFrame = (frame: XRFrame): void => {
+    (async () => {
+      if (this.refSpace == null) {
+        return;
+      }
+
+      const pose = frame.getViewerPose(this.refSpace);
+      if (pose == null) {
+        return;
+      }
+
+      const view = pose.views[0];
+
+      const depthInfo = (frame as any).getDepthInformation(view);
+      console.log(depthInfo.getDepthInMeters(0.5, 0.5));
+    })().catch(null);
   };
 }

@@ -6,5 +6,8 @@
   },
   "[scss]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[glsl]": {
+    "editor.defaultFormatter": "xaver.clang-format"
   }
 }

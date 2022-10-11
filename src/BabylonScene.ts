@@ -2,10 +2,13 @@ import {
   Engine,
   MeshBuilder,
   Scene,
-  Vector3,
+  ShaderMaterial,
   WebXRExperienceHelper,
 } from '@babylonjs/core';
 import { AdvancedDynamicTexture, Button, TextBlock } from '@babylonjs/gui';
+
+import depthVert from './depth.vert.fx?raw';
+import depthFrag from './depth.fragment.fx?raw';
 
 export default class BabylonScene {
   private readonly engine: Engine;
@@ -22,8 +25,31 @@ export default class BabylonScene {
     this.scene.createDefaultCamera(true, true, true);
     this.scene.createDefaultLight(true);
 
-    const cube = MeshBuilder.CreateBox('box', { size: 0.1 });
-    cube.position = new Vector3(0, 1.2, 0);
+    // MeshBuilder.CreateBox('box', { size: 1.0 });
+
+    const plane = MeshBuilder.CreatePlane('plane', {
+      size: 1.0,
+      width: 0.9,
+      height: 1.6,
+      updatable: true,
+    });
+    const depthMat = new ShaderMaterial(
+      'depth shader',
+      this.scene,
+      {
+        vertexSource: depthVert,
+        fragmentSource: depthFrag,
+      },
+      {
+        attributes: ['position', 'uv'],
+        uniforms: ['worldViewProjection', 'depth'],
+      }
+    );
+    depthMat.backFaceCulling = false;
+
+    plane.material = depthMat;
+
+    depthMat.setFloat('depth', 1);
 
     // setup gui
     const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI('UI');
@@ -93,6 +119,7 @@ export default class BabylonScene {
 
       const depthInfo = (frame as any).getDepthInformation(view);
       const d1 = depthInfo.getDepthInMeters(0.25, 0.5);
+      console.log(depthInfo);
 
       depthCallback(d1);
     })().catch(null);

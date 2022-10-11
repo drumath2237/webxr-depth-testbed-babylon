@@ -9,6 +9,18 @@ const main = async (): Promise<void> => {
     return;
   }
 
+  const depthCanvas = document.getElementById(
+    'depthImageCanvas'
+  ) as HTMLCanvasElement;
+  if (depthCanvas == null) {
+    return;
+  }
+
+  const overlayRoot = document.getElementById('overlay-container');
+  if (overlayRoot == null) {
+    return;
+  }
+
   renderCanvas.width = window.innerWidth;
   renderCanvas.height = window.innerHeight;
   window.addEventListener('resize', () => {
@@ -16,7 +28,13 @@ const main = async (): Promise<void> => {
     renderCanvas.height = window.innerHeight;
   });
 
-  const app = new App(renderCanvas);
+  const ctx = depthCanvas.getContext('2d');
+
+  if (ctx == null) {
+    return;
+  }
+
+  const app = new App(renderCanvas, ctx, overlayRoot);
   await app.RunAsync();
 };
 

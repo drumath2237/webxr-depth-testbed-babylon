@@ -8,5 +8,14 @@ body {
     margin: 0;
     padding: 0;
     display: block;
+    position: absolute;
+  }
+
+  #depthImageCanvas {
+    position: absolute;
+    transform: rotate(90deg);
+    bottom: 100px;
+    left: -50px;
+    width: 300px;
   }
 }

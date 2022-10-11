@@ -1,4 +1,9 @@
-import { Engine, Scene, WebXRExperienceHelper } from '@babylonjs/core';
+import {
+  Engine,
+  Scene,
+  WebXRDomOverlay,
+  WebXRExperienceHelper,
+} from '@babylonjs/core';
 import { AdvancedDynamicTexture, Button, TextBlock } from '@babylonjs/gui';
 
 export default class BabylonScene {
@@ -7,7 +12,11 @@ export default class BabylonScene {
 
   private refSpace?: XRReferenceSpace;
 
-  public constructor(canvas: HTMLCanvasElement) {
+  public constructor(
+    canvas: HTMLCanvasElement,
+    private readonly ctxDepthImage: CanvasRenderingContext2D,
+    private readonly domRoot: Element
+  ) {
     this.engine = new Engine(canvas, true);
     this.scene = new Scene(this.engine);
   }
@@ -31,6 +40,10 @@ export default class BabylonScene {
           usagePreference: ['cpu-optimized'],
           dataFormatPreference: ['luminance-alpha'],
         },
+        domOverlay: {
+          root: this.domRoot,
+        },
+        optionalFeatures: ['dom-overlay'],
       } as any);
 
       this.refSpace = xrHelper.sessionManager.referenceSpace;
@@ -42,7 +55,7 @@ export default class BabylonScene {
     xrHelper.sessionManager.onXRSessionInit.add(async () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const { fullUI } = this.InitXRGUI();
+      this.InitXRGUI();
 
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       xrHelper.sessionManager.onXRFrameObservable.add(async (frame) => {
@@ -51,9 +64,7 @@ export default class BabylonScene {
           return;
         }
 
-        const ctx = fullUI.getContext();
-        ctx.putImageData(imageData, imageData.width, imageData.height);
-        fullUI.update();
+        this.ctxDepthImage.putImageData(imageData, 0, 0);
       });
     });
 
@@ -64,11 +75,8 @@ export default class BabylonScene {
     this.engine.runRenderLoop(() => this.scene.render());
   };
 
-  private static readonly SetupDefaultGUI = (
-    s: Scene
-  ): {
-    enterExitButton: Button;
-  } => {
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  private static readonly SetupDefaultGUI = (s: Scene) => {
     // setup gui
     const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI(
       'UI',
@@ -103,8 +111,11 @@ export default class BabylonScene {
     }
 
     const view = pose.views[0];
-
     const depthInfo = (frame as any).getDepthInformation(view);
+
+    if (depthInfo == null) {
+      return null;
+    }
 
     const width: number = depthInfo.width;
     const height: number = depthInfo.height;
@@ -112,12 +123,11 @@ export default class BabylonScene {
     const numArr = Array<number>(width * height);
 
     const dataArr = new Int16Array(depthInfo.data);
-
     for (let i = 0; i < width * height; i++) {
       numArr[i] = dataArr[i] * depthInfo.rawValueToMeters;
     }
 
-    const depthLimit = 5.0;
+    const depthLimit = 3.0;
 
     const colorArray = numArr
       .map((val) =>
@@ -127,6 +137,7 @@ export default class BabylonScene {
       )
       .flat()
       .map((val) => (val * 255.0) / depthLimit);
+
     const colorBuffer = new Uint8ClampedArray(colorArray);
     const imageData = new ImageData(colorBuffer, width);
 

@@ -10,7 +10,7 @@
       "name": "Attach to Android WebView",
       "webRoot": "${workspaceFolder}",
       "application": "com.android.chrome",
-      "device": "13061JECB07108"
+      "device": "192.168.11.23:5555"
     }
   ]
 }

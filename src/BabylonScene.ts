@@ -1,9 +1,4 @@
-import {
-  Engine,
-  Scene,
-  WebXRDomOverlay,
-  WebXRExperienceHelper,
-} from '@babylonjs/core';
+import { Engine, Scene, WebXRExperienceHelper } from '@babylonjs/core';
 import { AdvancedDynamicTexture, Button, TextBlock } from '@babylonjs/gui';
 
 export default class BabylonScene {
@@ -127,16 +122,21 @@ export default class BabylonScene {
       numArr[i] = dataArr[i] * depthInfo.rawValueToMeters;
     }
 
-    const depthLimit = 3.0;
+    const depthLimit = 4.0;
 
     const colorArray = numArr
       .map((val) =>
         val <= 0.0 || val > depthLimit
           ? [0.0, 0.0, 0.0, 1.0]
-          : [depthLimit - val, depthLimit - val, depthLimit - val, 1.0]
+          : [
+              1.0 - val / depthLimit,
+              1.0 - val / depthLimit,
+              1.0 - val / depthLimit,
+              1.0,
+            ]
       )
       .flat()
-      .map((val) => (val * 255.0) / depthLimit);
+      .map((val) => val * 255.0);
 
     const colorBuffer = new Uint8ClampedArray(colorArray);
     const imageData = new ImageData(colorBuffer, width);

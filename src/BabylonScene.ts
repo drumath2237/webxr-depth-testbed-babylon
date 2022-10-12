@@ -1,5 +1,5 @@
 import { Engine, Scene, WebXRExperienceHelper } from '@babylonjs/core';
-import { AdvancedDynamicTexture, Button, TextBlock } from '@babylonjs/gui';
+import { AdvancedDynamicTexture, Button } from '@babylonjs/gui';
 
 export default class BabylonScene {
   private readonly engine: Engine;
@@ -24,7 +24,6 @@ export default class BabylonScene {
 
     const xrHelper = await WebXRExperienceHelper.CreateAsync(this.scene);
 
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     enterExitButton.onPointerDownObservable.add(async (): Promise<void> => {
       // user activationのために待機
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -46,13 +45,9 @@ export default class BabylonScene {
       enterExitButton.isVisible = false;
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     xrHelper.sessionManager.onXRSessionInit.add(async () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      this.InitXRGUI();
-
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
       xrHelper.sessionManager.onXRFrameObservable.add(async (frame) => {
         const imageData = await this.CreateDepthImageDataFromXRFrame(frame);
         if (imageData == null) {
@@ -70,7 +65,11 @@ export default class BabylonScene {
     this.engine.runRenderLoop(() => this.scene.render());
   };
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  /**
+   * WebXRモードに移行するためのボタンを作成
+   * @param s
+   * @returns Buttonオブジェクト
+   */
   private static readonly SetupDefaultGUI = (s: Scene) => {
     // setup gui
     const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI(
@@ -93,6 +92,11 @@ export default class BabylonScene {
     };
   };
 
+  /**
+   * フレームデータからdepth-sensingでDepth推定結果を取得し、Depth画像を生成する
+   * @param frame フレームデータ（WebXRモードでの動作）
+   * @returns Depth画像のImageData
+   */
   private readonly CreateDepthImageDataFromXRFrame = async (
     frame: XRFrame
   ): Promise<ImageData | null> => {
@@ -142,21 +146,5 @@ export default class BabylonScene {
     const imageData = new ImageData(colorBuffer, width);
 
     return imageData;
-  };
-
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  private readonly InitXRGUI = () => {
-    const fullUI = AdvancedDynamicTexture.CreateFullscreenUI('XRUI');
-
-    const text1 = new TextBlock();
-    text1.top = 0;
-    text1.left = 0;
-    text1.text = '(0.25, 0.50)';
-    text1.color = 'white';
-    text1.fontSize = 25;
-
-    // fullUI.addControl(text1);
-
-    return { fullUI, text1 };
   };
 }

@@ -28,6 +28,8 @@ export default class BabylonScene {
       // user activationのために待機
       await new Promise((resolve) => setTimeout(resolve, 100));
 
+      // createDefaultXRExperienceではdepth-sensingを有効にできないので自分でenterXRを呼び出す
+      // （現行バージョンでは）
       await xrHelper.enterXRAsync('immersive-ar', 'unbounded', undefined, {
         requiredFeatures: ['depth-sensing'],
         depthSensing: {
